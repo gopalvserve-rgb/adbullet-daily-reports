@@ -1,0 +1,21 @@
+node_modules/
+.env
+.env.local
+*.log
+npm-debug.log*
+.DS_Store
+.idea/
+.vscode/
+dist/
+build/
+coverage/
+*.sqlite
+.railway/
+
+# Dev/test artifacts
+.smoke-test.js
+.smoke-server.js
+.cf-debug.js
+.pg-mem-server.js
+sample-report.html
+src/views/layout.ejs
