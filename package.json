@@ -1,0 +1,28 @@
+{
+  "name": "adbullet-daily-reports",
+  "version": "1.0.0",
+  "description": "Automated daily ad performance report sender — pulls Meta/Google/LinkedIn data via Windsor.ai and emails clients each morning.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "migrate": "node src/migrate.js",
+    "send-now": "node src/jobs/daily-report.js --run-now",
+    "test-send": "node src/jobs/daily-report.js --client"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "basic-auth": "^2.0.1",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.21.0",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.15",
+    "pg": "^8.13.0"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
