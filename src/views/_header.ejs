@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title><%= typeof title !== 'undefined' ? title : 'Adbullet Reports' %></title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">●</span>
+    <strong>Adbullet Reports</strong>
+    <span class="sub">Daily client ad report sender</span>
+  </div>
+  <nav>
+    <a href="/admin" class="<%= page === 'dashboard' ? 'active' : '' %>">Dashboard</a>
+    <a href="/admin/clients" class="<%= page === 'clients' ? 'active' : '' %>">Clients</a>
+    <a href="/admin/logs" class="<%= page === 'logs' ? 'active' : '' %>">Send log</a>
+  </nav>
+</header>
+<main>
