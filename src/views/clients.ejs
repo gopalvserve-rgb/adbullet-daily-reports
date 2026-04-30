@@ -1,0 +1,25 @@
+<%- include('_header', { page: page }) %>
+<div class="header-row">
+  <h1>Clients</h1>
+  <a class="btn primary" href="/admin/clients/new">+ Add client</a>
+</div>
+
+<table class="data">
+  <thead><tr><th>Name</th><th>Company</th><th>Recipients</th><th>Accounts</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  <% clients.forEach(function(c){ %>
+    <tr>
+      <td><a href="/admin/clients/<%= c.id %>"><strong><%= c.name %></strong></a></td>
+      <td class="muted"><%= c.company || '' %></td>
+      <td class="muted small"><%= c.recipient_emails %></td>
+      <td><%= c.account_count %></td>
+      <td><span class="pill <%= c.is_active ? 'success' : 'skipped' %>"><%= c.is_active ? 'active' : 'paused' %></span></td>
+      <td><a href="/admin/clients/<%= c.id %>">Edit →</a></td>
+    </tr>
+  <% }); %>
+  <% if (!clients.length) { %>
+    <tr><td colspan="6" class="muted">No clients yet. <a href="/admin/clients/new">Add your first client</a>.</td></tr>
+  <% } %>
+  </tbody>
+</table>
+<%- include('_footer') %>
