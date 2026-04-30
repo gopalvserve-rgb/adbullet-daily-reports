@@ -1,0 +1,22 @@
+<%- include('_header', { page: page }) %>
+<h1>Send log</h1>
+<p class="muted">Last 200 report runs.</p>
+
+<table class="data">
+  <thead><tr><th>When</th><th>Client</th><th>Date</th><th>Status</th><th>Recipients</th><th>Duration</th><th>Error</th></tr></thead>
+  <tbody>
+  <% logs.forEach(function(r){ %>
+    <tr>
+      <td><%= new Date(r.sent_at).toLocaleString('en-IN', {timeZone:'Asia/Kolkata'}) %></td>
+      <td><%= r.client_name %></td>
+      <td><%= r.report_date %></td>
+      <td><span class="pill <%= r.status %>"><%= r.status %></span></td>
+      <td class="muted small"><%= r.recipient_emails || '' %></td>
+      <td><%= r.duration_ms ? (r.duration_ms + ' ms') : '—' %></td>
+      <td class="muted small"><%= r.error_message || '' %></td>
+    </tr>
+  <% }); %>
+  <% if (!logs.length) { %><tr><td colspan="7" class="muted">No runs yet.</td></tr><% } %>
+  </tbody>
+</table>
+<%- include('_footer') %>
