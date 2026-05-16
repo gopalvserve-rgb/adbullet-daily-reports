@@ -1,10 +1,9 @@
 // src/windsor/client.js — thin Windsor.ai API wrapper.
 // Windsor exposes a unified endpoint:
-//   https://windsor.ai/api/v1/all?api_key=...&connector=<platform>&fields=...&date_from=...&date_to=...
-// Docs: https://windsor.ai/connect/
+//   https://connectors.windsor.ai/<connector>?api_key=...&fields=...&date_from=...&date_to=...
+// IMPORTANT: Windsor.ai's API does NOT reliably filter by account_id at the server side.
+// We always filter client-side after the response arrives.
 const axios = require('axios');
-
-const BASE_URL = 'https://windsor.ai/api/v1/all';
 
 async function fetchWindsor({ connector, fields, dateFrom, dateTo, accountId, extraParams = {} }) {
   if (!process.env.WINDSOR_API_KEY) {
@@ -13,7 +12,6 @@ async function fetchWindsor({ connector, fields, dateFrom, dateTo, accountId, ex
 
   const params = {
     api_key: process.env.WINDSOR_API_KEY,
-    connector,
     fields: Array.isArray(fields) ? fields.join(',') : fields,
     date_from: dateFrom,
     date_to: dateTo,
@@ -21,20 +19,17 @@ async function fetchWindsor({ connector, fields, dateFrom, dateTo, accountId, ex
     ...extraParams,
   };
 
-  // Most Windsor connectors use account_id; some use specific names.
-  if (accountId) {
-    params.account_id = accountId;
-  }
+  const url = `https://connectors.windsor.ai/${connector}`;
 
   try {
-    const { data } = await axios.get(BASE_URL, {
-      params,
-      timeout: 30_000,
-    });
-    // Windsor returns { data: [...] } or sometimes a bare array.
-    if (Array.isArray(data)) return data;
-    if (data && Array.isArray(data.data)) return data.data;
-    return [];
+    const { data } = await axios.get(url, { params, timeout: 30_000 });
+    let rows = Array.isArray(data) ? data : (data && Array.isArray(data.data) ? data.data : []);
+    // Client-side filter by account_id — Windsor's server-side filter is unreliable.
+    if (accountId && rows.length) {
+      const wanted = String(accountId);
+      rows = rows.filter(r => String(r.account_id) === wanted);
+    }
+    return rows;
   } catch (err) {
     const detail = err.response
       ? `HTTP ${err.response.status} — ${JSON.stringify(err.response.data).slice(0, 200)}`
@@ -43,7 +38,6 @@ async function fetchWindsor({ connector, fields, dateFrom, dateTo, accountId, ex
   }
 }
 
-// Aggregate an array of rows by summing numeric fields.
 function sumRows(rows, numericFields) {
   const totals = Object.fromEntries(numericFields.map((f) => [f, 0]));
   for (const row of rows) {
