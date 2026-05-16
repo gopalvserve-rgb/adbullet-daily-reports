@@ -7,14 +7,13 @@ const FIELDS = [
   'spend',
   'impressions',
   'clicks',
-  'leads',
-  'externalWebsiteConversions',
+  'conversions',
   'date',
   'account_id',
   'account_name',
 ];
 
-const NUMERIC = ['spend', 'impressions', 'clicks', 'leads', 'externalWebsiteConversions'];
+const NUMERIC = ['spend', 'impressions', 'clicks', 'conversions'];
 
 async function fetchLinkedIn({ accountId, dateFrom, dateTo }) {
   const rows = await fetchWindsor({
@@ -26,7 +25,7 @@ async function fetchLinkedIn({ accountId, dateFrom, dateTo }) {
   });
 
   const totals = sumRows(rows, NUMERIC);
-  const leads = totals.leads || totals.externalWebsiteConversions || 0;
+  const leads = totals.conversions || 0;
   const { spend, impressions, clicks } = totals;
 
   const byCampaign = {};
@@ -36,7 +35,7 @@ async function fetchLinkedIn({ accountId, dateFrom, dateTo }) {
       byCampaign[key] = { name: key, spend: 0, leads: 0, clicks: 0, impressions: 0 };
     }
     byCampaign[key].spend += parseFloat(row.spend) || 0;
-    byCampaign[key].leads += (parseFloat(row.leads) || parseFloat(row.externalWebsiteConversions) || 0);
+    byCampaign[key].leads += parseFloat(row.conversions) || 0;
     byCampaign[key].clicks += parseFloat(row.clicks) || 0;
     byCampaign[key].impressions += parseFloat(row.impressions) || 0;
   }
@@ -44,10 +43,7 @@ async function fetchLinkedIn({ accountId, dateFrom, dateTo }) {
   return {
     platform: 'linkedin',
     label: 'LinkedIn Ads',
-    spend,
-    impressions,
-    clicks,
-    leads,
+    spend, impressions, clicks, leads,
     ctr: impressions ? (clicks / impressions) * 100 : 0,
     cpc: clicks ? spend / clicks : 0,
     cpl: leads ? spend / leads : 0,
