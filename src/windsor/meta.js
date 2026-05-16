@@ -7,14 +7,13 @@ const FIELDS = [
   'spend',
   'impressions',
   'clicks',
-  'leads',
   'actions_lead',
   'date',
   'account_id',
   'account_name',
 ];
 
-const NUMERIC = ['spend', 'impressions', 'clicks', 'leads', 'actions_lead'];
+const NUMERIC = ['spend', 'impressions', 'clicks', 'actions_lead'];
 
 async function fetchMeta({ accountId, dateFrom, dateTo }) {
   const rows = await fetchWindsor({
@@ -26,13 +25,11 @@ async function fetchMeta({ accountId, dateFrom, dateTo }) {
   });
 
   const totals = sumRows(rows, NUMERIC);
-  // Meta exposes leads as either `leads` or `actions_lead` depending on event mapping.
-  const leads = totals.leads || totals.actions_lead || 0;
+  const leads = totals.actions_lead || 0;
   const spend = totals.spend;
   const impressions = totals.impressions;
   const clicks = totals.clicks;
 
-  // Per-campaign breakdown for top/bottom highlights.
   const byCampaign = {};
   for (const row of rows) {
     const key = row.campaign || row.campaign_id || 'Unknown campaign';
@@ -40,7 +37,7 @@ async function fetchMeta({ accountId, dateFrom, dateTo }) {
       byCampaign[key] = { name: key, spend: 0, leads: 0, clicks: 0, impressions: 0 };
     }
     byCampaign[key].spend += parseFloat(row.spend) || 0;
-    byCampaign[key].leads += (parseFloat(row.leads) || parseFloat(row.actions_lead) || 0);
+    byCampaign[key].leads += parseFloat(row.actions_lead) || 0;
     byCampaign[key].clicks += parseFloat(row.clicks) || 0;
     byCampaign[key].impressions += parseFloat(row.impressions) || 0;
   }
@@ -48,10 +45,7 @@ async function fetchMeta({ accountId, dateFrom, dateTo }) {
   return {
     platform: 'meta',
     label: 'Meta Ads',
-    spend,
-    impressions,
-    clicks,
-    leads,
+    spend, impressions, clicks, leads,
     ctr: impressions ? (clicks / impressions) * 100 : 0,
     cpc: clicks ? spend / clicks : 0,
     cpl: leads ? spend / leads : 0,
